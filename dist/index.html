@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Site premium demonstrativo para barbearia com serviços, galeria, equipe, avaliações e solicitação de agendamento pelo WhatsApp. Desenvolvido por Agência Winc." />
+  <meta name="author" content="Agência Winc" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Barbearia Demonstrativa Premium | Agência Winc</title>
+  <link rel="preconnect" href="https://images.unsplash.com" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080808'/%3E%3Cpath d='M18 47 45 20l5 5-27 27H18v-5Z' fill='%23c58b4a'/%3E%3Cpath d='M20 17h24v7H20zM18 33h20v6H18z' fill='%23f5f1ea'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #080808;
+      --panel: #111111;
+      --panel-2: #191817;
+      --text: #f6f1e8;
+      --muted: #b9b1a6;
+      --line: rgba(255,255,255,.13);
+      --gold: #c58b4a;
+      --copper: #a96334;
+      --soft: rgba(197,139,74,.14);
+      --shadow: 0 24px 80px rgba(0,0,0,.42);
+      --radius: 8px;
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    body.loading { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button, input, select { font: inherit; }
+    .loader {
+      position: fixed; inset: 0; z-index: 100;
+      display: grid; place-items: center;
+      background: #050505;
+      transition: opacity .55s ease, visibility .55s ease;
+    }
+    .loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-mark {
+      width: 86px; height: 86px; border: 1px solid var(--line);
+      display: grid; place-items: center; position: relative;
+      color: var(--gold); letter-spacing: .18em; font-weight: 800;
+    }
+    .loader-mark::before {
+      content: ""; position: absolute; inset: -7px; border: 1px solid transparent;
+      border-top-color: var(--gold); animation: spin 1.1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .site-header {
+      position: fixed; inset: 0 0 auto; z-index: 50;
+      transition: background .35s ease, border-color .35s ease, padding .35s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .site-header.scrolled {
+      background: rgba(8,8,8,.88); backdrop-filter: blur(18px);
+      border-color: var(--line);
+    }
+    .nav {
+      max-width: var(--max); margin: 0 auto; padding: 18px 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .brand-logo {
+      width: 44px; height: 44px; display: grid; place-items: center;
+      border: 1px solid rgba(197,139,74,.55); background: rgba(0,0,0,.32);
+      color: var(--gold); font-weight: 900;
+    }
+    .brand small { display: block; color: var(--muted); font-size: .68rem; letter-spacing: .22em; font-weight: 600; }
+    .nav-links { display: flex; align-items: center; gap: 22px; color: #ded8cf; font-size: .92rem; }
+    .nav-links a { position: relative; }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; right: 100%; bottom: -7px; height: 1px;
+      background: var(--gold); transition: right .25s ease;
+    }
+    .nav-links a:hover::after, .nav-links a:focus-visible::after { right: 0; }
+    .btn {
+      border: 1px solid rgba(197,139,74,.56); background: var(--gold); color: #111;
+      padding: 13px 18px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      font-weight: 800; text-transform: uppercase; letter-spacing: .06em; cursor: pointer;
+      transition: transform .25s ease, background .25s ease, color .25s ease, border-color .25s ease;
+      border-radius: 4px;
+    }
+    .btn:hover { transform: translateY(-2px); background: #e0a65d; }
+    .btn.secondary { background: transparent; color: var(--text); border-color: rgba(255,255,255,.32); }
+    .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .menu-toggle { display: none; background: none; color: var(--text); border: 1px solid var(--line); width: 46px; height: 46px; border-radius: 4px; }
+    .hero {
+      min-height: 96vh; position: relative; display: grid; align-items: center;
+      background: linear-gradient(90deg, rgba(0,0,0,.9), rgba(0,0,0,.55), rgba(0,0,0,.25)),
+        url("https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=2200&q=82") center/cover fixed;
+      overflow: hidden;
+    }
+    .hero::after { content: ""; position: absolute; inset: auto 0 0; height: 34%; background: linear-gradient(transparent, var(--bg)); }
+    .hero-inner { max-width: var(--max); width: 100%; margin: 0 auto; padding: 150px 22px 80px; position: relative; z-index: 1; }
+    .winc-ribbon {
+      display: inline-flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 26px;
+      border: 1px solid rgba(197,139,74,.35); background: rgba(8,8,8,.45); color: #ead5bd;
+      font-size: .78rem; letter-spacing: .08em; text-transform: uppercase;
+    }
+    h1, h2, h3 { margin: 0; line-height: .95; letter-spacing: 0; }
+    h1 { max-width: 790px; font-size: clamp(3.4rem, 9vw, 8.2rem); text-transform: uppercase; }
+    .hero p { max-width: 680px; color: #dfd7cc; font-size: clamp(1.05rem, 2vw, 1.35rem); margin: 26px 0 34px; }
+    .hero-actions, .cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; max-width: 690px; margin-top: 58px;
+      background: var(--line); border: 1px solid var(--line);
+    }
+    .hero-stats div { background: rgba(10,10,10,.7); padding: 22px; }
+    .hero-stats strong { display: block; color: var(--gold); font-size: 1.85rem; }
+    .scroll-cue {
+      position: absolute; right: 32px; bottom: 34px; z-index: 2; color: var(--muted);
+      writing-mode: vertical-rl; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
+    }
+    .scroll-cue::after { content: ""; display: block; width: 1px; height: 54px; margin: 14px auto 0; background: var(--gold); animation: pulse 1.6s infinite; }
+    @keyframes pulse { 50% { opacity: .28; transform: translateY(10px); } }
+    section { padding: 96px 22px; position: relative; }
+    .section-inner { max-width: var(--max); margin: 0 auto; }
+    .section-head { display: grid; grid-template-columns: .9fr 1.1fr; gap: 34px; align-items: end; margin-bottom: 42px; }
+    .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .18em; font-size: .78rem; font-weight: 900; margin-bottom: 12px; }
+    h2 { font-size: clamp(2.2rem, 5vw, 4.6rem); text-transform: uppercase; }
+    .section-head p, .lead { color: var(--muted); font-size: 1.05rem; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; align-items: center; }
+    .image-frame { position: relative; min-height: 520px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); }
+    .image-frame img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .about-card { padding: 36px; background: linear-gradient(135deg, var(--panel), #0c0c0c); border: 1px solid var(--line); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 26px; }
+    .metric { padding: 18px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+    .metric strong { color: var(--gold); font-size: 1.7rem; display: block; }
+    .services { background: #0d0d0d; }
+    .service-grid, .team-grid, .diff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+      border: 1px solid var(--line); padding: 22px; min-height: 100%;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+      border-radius: var(--radius);
+    }
+    .card:hover { transform: translateY(-6px); border-color: rgba(197,139,74,.55); background: rgba(197,139,74,.08); }
+    .service-icon, .diff-icon { color: var(--gold); font-size: 1.6rem; margin-bottom: 18px; }
+    .card h3 { font-size: 1.25rem; line-height: 1.15; margin-bottom: 10px; }
+    .card p { color: var(--muted); margin: 0 0 18px; }
+    .service-meta { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: auto; color: #e6ded3; }
+    .price { color: var(--gold); font-weight: 900; }
+    .mini-btn { color: var(--gold); background: none; border: 0; padding: 14px 0 0; cursor: pointer; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .gallery-grid { display: grid; grid-template-columns: 1.2fr .8fr 1fr; grid-auto-rows: 230px; gap: 14px; }
+    .gallery-item { border: 1px solid var(--line); overflow: hidden; cursor: zoom-in; background: #151515; position: relative; }
+    .gallery-item:nth-child(1), .gallery-item:nth-child(5) { grid-row: span 2; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease, filter .5s ease; }
+    .gallery-item:hover img { transform: scale(1.06); filter: contrast(1.08); }
+    .team-card { padding: 0; overflow: hidden; }
+    .team-photo { height: 310px; object-fit: cover; width: 100%; filter: saturate(.92); }
+    .team-body { padding: 22px; }
+    .team-body span { color: var(--gold); font-size: .85rem; text-transform: uppercase; letter-spacing: .1em; }
+    .experience { background: linear-gradient(180deg, #080808, #13110f); }
+    .reviews-wrap { display: grid; grid-template-columns: .85fr 1.15fr; gap: 28px; align-items: center; }
+    .review-card { min-height: 280px; padding: 34px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .stars { color: var(--gold); letter-spacing: .15em; margin-bottom: 20px; }
+    .review-controls { display: flex; gap: 10px; margin-top: 20px; }
+    .icon-btn { width: 46px; height: 46px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; border-radius: 4px; }
+    .booking { background: #0c0c0c; }
+    .booking-grid { display: grid; grid-template-columns: 1fr .82fr; gap: 24px; align-items: start; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label { display: grid; gap: 7px; color: #d7cec3; font-weight: 700; font-size: .95rem; }
+    input, select {
+      width: 100%; min-height: 50px; padding: 12px 14px; background: #151515; border: 1px solid var(--line);
+      color: var(--text); border-radius: 4px; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--soft); }
+    .full { grid-column: 1 / -1; }
+    .summary {
+      border: 1px solid rgba(197,139,74,.38); background: linear-gradient(145deg, rgba(197,139,74,.14), rgba(255,255,255,.04));
+      padding: 26px; position: sticky; top: 96px;
+    }
+    .summary dl { display: grid; gap: 12px; margin: 20px 0; }
+    .summary div { display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    .summary dt { color: var(--muted); }
+    .summary dd { margin: 0; text-align: right; font-weight: 800; }
+    .note { color: var(--muted); font-size: .92rem; }
+    .contact-grid { display: grid; grid-template-columns: .7fr 1.3fr; gap: 22px; }
+    .contact-list { display: grid; gap: 14px; }
+    .map { min-height: 420px; border: 1px solid var(--line); filter: grayscale(1) invert(.9) contrast(.86); }
+    .final-cta {
+      min-height: 520px; display: grid; align-items: center;
+      background: linear-gradient(90deg, rgba(0,0,0,.86), rgba(0,0,0,.48)), url("https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=2200&q=82") center/cover fixed;
+    }
+    footer { padding: 56px 22px 30px; border-top: 1px solid var(--line); background: #050505; }
+    .footer-grid { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1.2fr .8fr .8fr 1fr; gap: 30px; }
+    .footer-grid ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; color: var(--muted); }
+    .winc-credit {
+      max-width: var(--max); margin: 34px auto 0; padding-top: 22px; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted);
+    }
+    .winc-credit a { color: var(--gold); font-weight: 900; text-decoration: underline; text-underline-offset: 4px; }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .lightbox { position: fixed; inset: 0; z-index: 90; display: none; place-items: center; padding: 24px; background: rgba(0,0,0,.88); }
+    .lightbox.open { display: grid; }
+    .lightbox img { max-height: 86vh; border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(80px); z-index: 95; background: #111; color: var(--text); border: 1px solid var(--line); padding: 14px 18px; transition: transform .3s ease; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    @media (max-width: 980px) {
+      .nav-links {
+        position: fixed; inset: 76px 14px auto; display: grid; padding: 20px; background: rgba(10,10,10,.96);
+        border: 1px solid var(--line); transform: translateY(-18px); opacity: 0; pointer-events: none; transition: .25s ease;
+      }
+      .nav-links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .menu-toggle { display: inline-grid; place-items: center; }
+      .nav .btn { display: none; }
+      .section-head, .about-grid, .reviews-wrap, .booking-grid, .contact-grid, .footer-grid { grid-template-columns: 1fr; }
+      .service-grid, .team-grid, .diff-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .hero { background-attachment: scroll; }
+      .final-cta { background-attachment: scroll; }
+    }
+    @media (max-width: 640px) {
+      .nav { padding: 12px 16px; }
+      .brand-text { max-width: 174px; }
+      .hero-inner { padding: 118px 18px 70px; }
+      .hero-stats, .metrics, .service-grid, .team-grid, .diff-grid, form, .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-item, .gallery-item:nth-child(1), .gallery-item:nth-child(5) { grid-row: auto; height: 300px; }
+      section { padding: 72px 18px; }
+      .image-frame { min-height: 360px; }
+      .scroll-cue { display: none; }
+      .summary { position: static; }
+      h1 { font-size: clamp(3rem, 17vw, 4.6rem); }
+      .btn { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body class="loading">
+  <div class="loader" aria-label="Carregando site"><div class="loader-mark">BW</div></div>
+  <header class="site-header" id="topo">
+    <nav class="nav" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="Início">
+        <span class="brand-logo">BW</span><span class="brand-text">Barbearia Winc <small>Premium demo</small></span>
+      </a>
+      <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+      <div class="nav-links">
+        <a href="#inicio">Início</a><a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#galeria">Galeria</a><a href="#equipe">Equipe</a><a href="#avaliacoes">Avaliações</a><a href="#contato">Contato</a>
+      </div>
+      <a class="btn" href="#agendamento">Agendar horário</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-inner">
+        <a class="winc-ribbon" href="https://agenciawinc.netlify.app/" target="_blank" rel="noopener">Projeto premium por Agência Winc</a>
+        <h1 class="reveal">Seu estilo. Sua identidade.</h1>
+        <p class="reveal">Uma experiência demonstrativa de barbearia premium, criada para apresentar serviços, profissionais e solicitações de horário com acabamento de alto padrão.</p>
+        <div class="hero-actions reveal">
+          <a class="btn" href="#agendamento">Agendar agora</a>
+          <a class="btn secondary" href="#servicos">Conheça os serviços</a>
+        </div>
+        <div class="hero-stats reveal" aria-label="Indicadores demonstrativos">
+          <div><strong>10+</strong><span>Anos de experiência</span></div>
+          <div><strong>8</strong><span>Serviços editáveis</span></div>
+          <div><strong>100%</strong><span>Conteúdo personalizável</span></div>
+        </div>
+      </div>
+      <span class="scroll-cue">Role</span>
+    </section>
+    <section id="sobre">
+      <div class="section-inner about-grid">
+        <div class="image-frame reveal"><img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1400&q=82" alt="Ambiente sofisticado de barbearia" /></div>
+        <div class="about-card reveal">
+          <p class="eyebrow">Sobre a barbearia</p>
+          <h2>Tradição, técnica e presença.</h2>
+          <p class="lead">Conteúdo demonstrativo: substitua estes textos pela história real da barbearia. A proposta é comunicar atendimento consultivo, acabamento preciso e uma rotina de cuidado pensada para homens que valorizam tempo, imagem e conforto.</p>
+          <div class="metrics">
+            <div class="metric"><strong>+5k</strong><span>clientes atendidos</span></div>
+            <div class="metric"><strong>4</strong><span>profissionais</span></div>
+            <div class="metric"><strong>45min</strong><span>experiência média</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="services" id="servicos">
+      <div class="section-inner">
+        <div class="section-head reveal"><div><p class="eyebrow">Serviços e preços</p><h2>Precisão em cada detalhe.</h2></div><p>Valores demonstrativos centralizados no arquivo de configuração do próprio site. Edite serviços, duração e preços em um único ponto do código.</p></div>
+        <div class="service-grid" id="serviceGrid"></div>
+      </div>
+    </section>
+    <section id="galeria">
+      <div class="section-inner">
+        <div class="section-head reveal"><div><p class="eyebrow">Galeria</p><h2>Resultados com presença.</h2></div><p>Fotos editoriais de referência para a primeira versão. Troque por imagens reais da barbearia assim que disponíveis.</p></div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="cta-row reveal" style="margin-top:26px"><a class="btn secondary" id="instagramLink" target="_blank" rel="noopener">Acessar Instagram</a></div>
+      </div>
+    </section>
+    <section id="equipe">
+      <div class="section-inner">
+        <div class="section-head reveal"><div><p class="eyebrow">Nossa equipe</p><h2>Especialistas no seu estilo.</h2></div><p>Nomes e perfis demonstrativos preparados para personalização. Cada profissional pode receber links sociais e mensagens de agendamento próprias.</p></div>
+        <div class="team-grid" id="teamGrid"></div>
+      </div>
+    </section>
+    <section class="experience" id="diferenciais">
+      <div class="section-inner">
+        <div class="section-head reveal"><div><p class="eyebrow">Experiência</p><h2>O ritual importa.</h2></div><p>Uma seção para destacar diferenciais reais da operação: pontualidade, produto, ambiente, atendimento e praticidade.</p></div>
+        <div class="diff-grid" id="diffGrid"></div>
+      </div>
+    </section>
+    <section id="avaliacoes">
+      <div class="section-inner reviews-wrap">
+        <div class="reveal"><p class="eyebrow">Avaliações</p><h2>Espaço para provas reais.</h2><p class="lead">Os comentários abaixo são placeholders claramente editáveis. Substitua por avaliações reais somente quando tiver autorização e fonte.</p></div>
+        <div class="review-card reveal" aria-live="polite">
+          <div class="stars">★★★★★</div>
+          <p id="reviewText"></p>
+          <strong id="reviewName"></strong>
+          <div class="review-controls"><button class="icon-btn" id="prevReview" aria-label="Avaliação anterior">‹</button><button class="icon-btn" id="nextReview" aria-label="Próxima avaliação">›</button></div>
+        </div>
+      </div>
+    </section>
+    <section class="booking" id="agendamento">
+      <div class="section-inner">
+        <div class="section-head reveal"><div><p class="eyebrow">Agendamento online</p><h2>Solicite seu horário.</h2></div><p>Sem backend nesta versão: o botão envia uma solicitação formatada pelo WhatsApp. O horário só fica confirmado após retorno da barbearia.</p></div>
+        <div class="booking-grid">
+          <form id="bookingForm" class="reveal">
+            <label>Serviço<select id="service" required></select></label>
+            <label>Barbeiro<select id="barber" required></select></label>
+            <label>Data<input id="date" type="date" required /></label>
+            <label>Horário<select id="time" required></select></label>
+            <label>Nome<input id="client" placeholder="Seu nome" autocomplete="name" required /></label>
+            <label>WhatsApp<input id="phone" placeholder="(00) 00000-0000" autocomplete="tel" required /></label>
+            <button class="btn full" type="submit">Confirmar solicitação no WhatsApp</button>
+          </form>
+          <aside class="summary reveal">
+            <p class="eyebrow">Resumo</p>
+            <h3>Pedido de horário</h3>
+            <dl>
+              <div><dt>Serviço</dt><dd id="sumService">Selecione</dd></div>
+              <div><dt>Barbeiro</dt><dd id="sumBarber">Selecione</dd></div>
+              <div><dt>Data</dt><dd id="sumDate">Selecione</dd></div>
+              <div><dt>Horário</dt><dd id="sumTime">Selecione</dd></div>
+            </dl>
+            <p class="note">Você será direcionado ao WhatsApp com a mensagem pronta. Esta ação não confirma automaticamente o agendamento.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <section id="contato">
+      <div class="section-inner contact-grid">
+        <div class="reveal">
+          <p class="eyebrow">Localização e contato</p><h2>Chegue pronto.</h2>
+          <div class="contact-list" id="contactList"></div>
+          <div class="cta-row" style="margin-top:22px"><a class="btn" id="routeLink" target="_blank" rel="noopener">Abrir rota</a><a class="btn secondary" id="quickWhats" target="_blank" rel="noopener">WhatsApp</a></div>
+        </div>
+        <iframe class="map reveal" id="mapFrame" title="Mapa da barbearia" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </section>
+    <section class="final-cta">
+      <div class="section-inner reveal">
+        <p class="eyebrow">CTA final</p>
+        <h2>Seu próximo corte começa aqui.</h2>
+        <p class="lead">Transforme esta demonstração na presença digital real da barbearia com fotos, endereço, equipe e agenda integrada.</p>
+        <div class="cta-row"><a class="btn" href="#agendamento">Agendar meu horário</a></div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="footer-grid">
+      <div><a class="brand" href="#inicio"><span class="brand-logo">BW</span><span>Barbearia Winc <small>Premium demo</small></span></a><p class="note">Site demonstrativo para personalização comercial.</p></div>
+      <div><strong>Navegação</strong><ul><li><a href="#sobre">Sobre</a></li><li><a href="#servicos">Serviços</a></li><li><a href="#galeria">Galeria</a></li><li><a href="#agendamento">Agendamento</a></li></ul></div>
+      <div><strong>Contato</strong><ul id="footerContact"></ul></div>
+      <div><strong>Horários</strong><ul id="footerHours"></ul></div>
+    </div>
+    <div class="winc-credit"><span>© <span id="year"></span> Barbearia Winc. Conteúdo demonstrativo.</span><a href="https://agenciawinc.netlify.app/" target="_blank" rel="noopener">Desenvolvido por Agência Winc</a></div>
+  </footer>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada"><button class="icon-btn" style="position:absolute;top:20px;right:20px" aria-label="Fechar">×</button><img alt="" /></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const siteConfig = {
+      barbershopName: "Barbearia Winc",
+      whatsappNumber: "5511999999999",
+      phoneDisplay: "(11) 99999-9999",
+      address: "Rua Demonstrativa, 100 - Centro",
+      instagram: "https://www.instagram.com/",
+      routeUrl: "https://www.google.com/maps/search/?api=1&query=barbearia",
+      mapEmbed: "https://www.google.com/maps?q=barbearia&output=embed",
+      hours: ["Segunda a sexta: 09h às 20h", "Sábado: 09h às 18h", "Domingo: fechado"],
+      services: [
+        ["Corte masculino", "Consultoria rápida, corte técnico e finalização.", "R$ 70", "45 min", "✂"],
+        ["Corte degradê", "Fade limpo com transições precisas.", "R$ 85", "55 min", "◒"],
+        ["Barba tradicional", "Toalha quente, navalha e acabamento.", "R$ 55", "35 min", "◆"],
+        ["Corte + barba", "Pacote completo para manutenção premium.", "R$ 120", "80 min", "✦"],
+        ["Pigmentação", "Correção visual com acabamento natural.", "R$ 90", "45 min", "●"],
+        ["Sobrancelha", "Limpeza e alinhamento discreto.", "R$ 35", "20 min", "⌁"],
+        ["Tratamento capilar", "Higienização, nutrição e finalização.", "R$ 95", "50 min", "◇"],
+        ["Serviços especiais", "Produções, noivos e atendimento sob consulta.", "Sob consulta", "90 min", "★"]
+      ],
+      team: [
+        ["Rafael Torres", "Fade e acabamento", "Especialista em cortes modernos e manutenção de imagem.", "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=900&q=82"],
+        ["Diego Martins", "Barba e navalha", "Experiência clássica com atenção ao conforto.", "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?auto=format&fit=crop&w=900&q=82"],
+        ["Caio Nunes", "Cortes executivos", "Linhas discretas, acabamento limpo e rotina prática.", "https://images.unsplash.com/photo-1618077360395-f3068be8e001?auto=format&fit=crop&w=900&q=82"],
+        ["Bruno Alves", "Tratamentos", "Cuidados capilares e finalizações para cada perfil.", "https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=900&q=82"]
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1622288432450-277d0fef5ed6?auto=format&fit=crop&w=1200&q=82",
+        "https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=1200&q=82",
+        "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=82",
+        "https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=1200&q=82",
+        "https://images.unsplash.com/photo-1536520002442-39764a41e987?auto=format&fit=crop&w=1200&q=82",
+        "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=1200&q=82"
+      ],
+      reviews: [
+        ["Placeholder editável", "Espaço reservado para inserir um depoimento real autorizado, com nome e avaliação verificáveis."],
+        ["Cliente real futuro", "Substitua este texto por avaliações coletadas em canais oficiais da barbearia."],
+        ["Avaliação autorizada", "Use este card para prova social verdadeira, sem apresentar conteúdo fictício como real."]
+      ],
+      differentials: [
+        ["Atendimento personalizado", "Cada corte parte do estilo, rotina e formato do rosto."],
+        ["Profissionais especializados", "Equipe preparada para técnicas clássicas e contemporâneas."],
+        ["Ambiente confortável", "Experiência visual e sensorial alinhada ao padrão premium."],
+        ["Produtos de qualidade", "Espaço para destacar marcas e linhas realmente utilizadas."],
+        ["Pontualidade", "Fluxo pensado para reduzir espera e melhorar previsibilidade."],
+        ["Agendamento simples", "Solicitações rápidas pelo WhatsApp nesta primeira versão."]
+      ],
+      timeSlots: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+    };
+    const $ = (s, root = document) => root.querySelector(s);
+    const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+    const waUrl = (text) => `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(text)}`;
+    function render() {
+      $("#serviceGrid").innerHTML = siteConfig.services.map((s, i) => `<article class="card reveal" style="transition-delay:${i*45}ms"><div class="service-icon">${s[4]}</div><h3>${s[0]}</h3><p>${s[1]}</p><div class="service-meta"><span class="price">${s[2]}</span><span>${s[3]}</span></div><button class="mini-btn" data-service="${s[0]}">Agendar serviço</button></article>`).join("");
+      $("#teamGrid").innerHTML = siteConfig.team.map((p, i) => `<article class="card team-card reveal" style="transition-delay:${i*60}ms"><img class="team-photo" src="${p[3]}" alt="Foto demonstrativa de ${p[0]}"><div class="team-body"><span>${p[1]}</span><h3>${p[0]}</h3><p>${p[2]}</p><button class="mini-btn" data-barber="${p[0]}">Agendar com profissional</button></div></article>`).join("");
+      $("#galleryGrid").innerHTML = siteConfig.gallery.map((src, i) => `<button class="gallery-item reveal" style="transition-delay:${i*50}ms" aria-label="Ampliar imagem da galeria"><img src="${src}" alt="Referência visual de corte e barba ${i+1}"></button>`).join("");
+      $("#diffGrid").innerHTML = siteConfig.differentials.map((d, i) => `<article class="card reveal" style="transition-delay:${i*45}ms"><div class="diff-icon">✦</div><h3>${d[0]}</h3><p>${d[1]}</p></article>`).join("");
+      $("#service").innerHTML = `<option value="">Selecione</option>` + siteConfig.services.map(s => `<option>${s[0]} - ${s[2]}</option>`).join("");
+      $("#barber").innerHTML = `<option value="">Selecione</option>` + siteConfig.team.map(p => `<option>${p[0]}</option>`).join("");
+      $("#time").innerHTML = `<option value="">Selecione</option>` + siteConfig.timeSlots.map(t => `<option>${t}</option>`).join("");
+      $("#instagramLink").href = siteConfig.instagram;
+      $("#routeLink").href = siteConfig.routeUrl;
+      $("#quickWhats").href = waUrl("Olá! Gostaria de tirar uma dúvida sobre a barbearia.");
+      $("#mapFrame").src = siteConfig.mapEmbed;
+      $("#contactList").innerHTML = [`Endereço: ${siteConfig.address}`, `Telefone/WhatsApp: ${siteConfig.phoneDisplay}`, "Instagram configurável"].map(x => `<div class="card">${x}</div>`).join("");
+      $("#footerContact").innerHTML = [`${siteConfig.phoneDisplay}`, siteConfig.address, `<a href="${siteConfig.instagram}" target="_blank" rel="noopener">Instagram</a>`].map(x => `<li>${x}</li>`).join("");
+      $("#footerHours").innerHTML = siteConfig.hours.map(h => `<li>${h}</li>`).join("");
+      $("#year").textContent = new Date().getFullYear();
+    }
+    function bind() {
+      const header = $(".site-header");
+      const nav = $(".nav-links");
+      const menuBtn = $(".menu-toggle");
+      window.addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 30), { passive: true });
+      menuBtn.addEventListener("click", () => { const open = nav.classList.toggle("open"); menuBtn.setAttribute("aria-expanded", open); });
+      $$(".nav-links a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
+      const io = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } }), { threshold: .14 });
+      $$(".reveal").forEach(el => io.observe(el));
+      $$("[data-service]").forEach(b => b.addEventListener("click", () => { $("#service").value = [...$("#service").options].find(o => o.textContent.startsWith(b.dataset.service))?.value || ""; updateSummary(); location.hash = "agendamento"; }));
+      $$("[data-barber]").forEach(b => b.addEventListener("click", () => { $("#barber").value = b.dataset.barber; updateSummary(); location.hash = "agendamento"; }));
+      ["service","barber","date","time"].forEach(id => $("#" + id).addEventListener("change", updateSummary));
+      $("#bookingForm").addEventListener("submit", submitBooking);
+      const lb = $("#lightbox");
+      $$(".gallery-item").forEach(item => item.addEventListener("click", () => { $("img", lb).src = $("img", item).src; $("img", lb).alt = $("img", item).alt; lb.classList.add("open"); }));
+      $("#lightbox button").addEventListener("click", () => lb.classList.remove("open"));
+      lb.addEventListener("click", e => { if (e.target === lb) lb.classList.remove("open"); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("open"); });
+      let idx = 0; const showReview = () => { const r = siteConfig.reviews[idx]; $("#reviewName").textContent = r[0]; $("#reviewText").textContent = r[1]; };
+      $("#prevReview").onclick = () => { idx = (idx - 1 + siteConfig.reviews.length) % siteConfig.reviews.length; showReview(); };
+      $("#nextReview").onclick = () => { idx = (idx + 1) % siteConfig.reviews.length; showReview(); };
+      showReview();
+    }
+    function updateSummary() {
+      $("#sumService").textContent = $("#service").value || "Selecione";
+      $("#sumBarber").textContent = $("#barber").value || "Selecione";
+      $("#sumDate").textContent = $("#date").value ? new Date($("#date").value + "T12:00:00").toLocaleDateString("pt-BR") : "Selecione";
+      $("#sumTime").textContent = $("#time").value || "Selecione";
+    }
+    function submitBooking(e) {
+      e.preventDefault();
+      if (!e.currentTarget.checkValidity()) return;
+      const msg = `Olá! Gostaria de solicitar um horário.\n\nServiço: ${$("#service").value}\nBarbeiro: ${$("#barber").value}\nData: ${$("#sumDate").textContent}\nHorário: ${$("#time").value}\nNome: ${$("#client").value}\nWhatsApp: ${$("#phone").value}\n\nEntendo que este envio é uma solicitação e aguardo confirmação da barbearia.`;
+      toast("Abrindo WhatsApp com sua solicitação.");
+      window.open(waUrl(msg), "_blank", "noopener");
+    }
+    function toast(text) { const t = $("#toast"); t.textContent = text; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3200); }
+    window.addEventListener("load", () => { setTimeout(() => { $(".loader").classList.add("hidden"); document.body.classList.remove("loading"); }, 450); });
+    render(); bind(); updateSummary();
+  </script>
+</body>
+</html>
